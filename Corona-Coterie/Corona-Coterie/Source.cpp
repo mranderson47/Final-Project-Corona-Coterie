@@ -4,6 +4,7 @@
 
 using namespace std;
 
+//Create node structure for our date, each object contains the data associated with each event
 struct Node
 {
 	string province;
