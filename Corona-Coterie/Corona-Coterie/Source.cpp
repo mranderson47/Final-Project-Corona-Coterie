@@ -1,4 +1,4 @@
-
+//Corona Coterie Final Project: Mason Anderson, Brittany Nguyen and Christian Bock
 #include <iostream>
 #include <iomanip>
 #include <string>
@@ -184,7 +184,6 @@ int main()
 {
     cout << "Welcome to the Corona Coterie Data Index!" << endl;
 
-    
     //Load our file stream.
     fstream fin;
     string file = "data.csv";
@@ -210,7 +209,6 @@ int main()
         
         double count1 = 0;
         double count2 = 0;
-
 
         //For each line, make a new node
         //Insertion into AVL, separate loop for insertion comparisons
@@ -287,13 +285,11 @@ int main()
         }
         auto finish = chrono::high_resolution_clock::now();
 
-       
         cout << "It took a total of " << (finish - start).count() << " nanoseconds to load." << endl;
         //Insertion into a map, separate loop for insertion comparisons
         cout << "MAP insertion time: " << count1 << " nanoseconds" << endl;
         cout << "AVL insertion time: " << count2 << " nanoseconds" << endl;
         
-
         while (true)
         {
             double searchAVL = 0;
@@ -304,6 +300,7 @@ int main()
 
             if (country == "quit")
             {
+                cout << "Thank you for using the Corona Coterie database, goodbye!" << endl;
                 return 0;
             }
 
@@ -339,30 +336,35 @@ int main()
                         cout << it->first << endl;
                 }
 
-                cout << "\nPick a province to view all related Coronavirus statistics, or type quit to exit: ";
+                while (successful) {
+                    cout << "\nPick a province to view all related Coronavirus statistics, or type quit to exit: ";
 
-                getline(cin, province);
-                cout << endl;
+                    getline(cin, province);
+                    cout << endl;
 
-                if (province == "quit")
-                {
-                    cout << "Thank you for using the Corona Coterie database, goodbye!" << endl;
-                    return 0;
-                }
+                    if (province == "quit")
+                    {
+                        cout << "Thank you for using the Corona Coterie database, goodbye!" << endl;
+                        return 0;
+                    }
+                    else if (provList.find(province) != provList.end()) {     //province is in list
+                        //Print data
+                        cout << "Date:" << setw(20) << "Province" << setw(15) << "Country" << setw(15) << "Confirmed" << setw(15) << "Deaths" << setw(15) << "Recovered" << endl;
+                        for (int i = 0; i < provList[province].size(); i++) {
 
-                //Print data
-                cout << "Date:" << setw(20) << "Province" << setw(15) << "Country" << setw(15) << "Confirmed" << setw(15) << "Deaths" << setw(15) << "Recovered" << endl;
-                for (int i = 0; i < provList[province].size(); i++) {
+                            cout << setw(17) << left << provList[province].at(i).date << setw(16) << provList[province].at(i).province << setw(13) << provList[province].at(i).country << setw(18)
+                                << provList[province].at(i).confirmed << setw(13) << provList[province].at(i).deaths << setw(9) << provList[province].at(i).revovered << endl;
 
-                    cout << setw(17) << left << provList[province].at(i).date << setw(16) << provList[province].at(i).province << setw(13) << provList[province].at(i).country << setw(18)
-                        << provList[province].at(i).confirmed << setw(13) << provList[province].at(i).deaths << setw(9) << provList[province].at(i).revovered << endl;
-
+                        }
+                        successful = false;
+                    }
+                    else      //province not found, print not found and loop again
+                        cout << "Province not found, try again..";
                 }
             }
             else {      //if country not found, print not found and loop again
-                cout << "Not Found, try again" << endl;
+                cout << "Country not found, try again..";
             }
-
         }
     }
     //If we were not able to open the file, exit the program.
@@ -372,6 +374,6 @@ int main()
         return 0;
     }
 
-
+//END OF PROJECT
 }
 
