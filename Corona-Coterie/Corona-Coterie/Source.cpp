@@ -1,6 +1,8 @@
 #include <iostream>
 #include <fstream>
 #include <string>
+#include <map>
+#include <vector>
 
 using namespace std;
 
@@ -14,7 +16,7 @@ struct Node
 	string confirmed;
 	string deaths;
 	string revovered;
-
+	vector<Node> dupes;
 
 };
 
@@ -27,6 +29,9 @@ int main()
 	fstream fin;
 	string file = "data.csv";
 
+	//Map declaration for node storage
+	map<string, Node> mp;
+
 	//Open the data to be parsed.
 	fin.open(file);
 
@@ -38,11 +43,14 @@ int main()
 		int index;
 		string line;
 		getline(fin, line);
-		Node node;
+		
 		
 		//For each line, make a new node
 		while (!fin.eof())
 		{
+			//Declare new node
+			Node node;
+
 			getline(fin, line);
 			//Start our index
 			index = line.find(",");
@@ -87,8 +95,10 @@ int main()
 			
 			//*****Test printing data to make sure it is accurate*********//
 			
-			cout << node.date << " " << node.province << " " << node.country << " " << node.confirmed << " " << node.deaths << " " << node.revovered << endl;
+			//cout << node.date << " " << node.province << " " << node.country << " " << node.confirmed << " " << node.deaths << " " << node.revovered << endl;
 
+			mp.emplace(make_pair(node.country,node));
+			
 
 
 		}
