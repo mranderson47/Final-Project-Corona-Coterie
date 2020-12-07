@@ -56,7 +56,7 @@ public:
     int balanceFactor(AVLNode* root);
     AVLNode* balanceAVLNode(AVLNode* root);
     AVLNode* insertAVLNode(AVLNode* root, Node data);
-    void searchAVLNode(AVLNode* root, string country, unordered_map<string, vector<Node>>& list);
+    void searchAVLNode(AVLNode* root, string country, unordered_map<string, vector<Node>>& list, bool& successful);
 };
 
 //Initialize AVL Tree
@@ -166,14 +166,14 @@ AVL::AVLNode* AVL::insertAVLNode(AVLNode* root, Node data) {       //O(logn)
 }
 
 //Stepik 4.3.3 find Node
-void AVL::searchAVLNode(AVLNode* root, string country, unordered_map<string, vector<Node>>& list) {     //O(logn)
+void AVL::searchAVLNode(AVLNode* root, string country, unordered_map<string, vector<Node>>& list, bool& successful) {     //O(logn)
     if (root == NULL) {     //check if empty
-        cout << "Not found" << endl;
+        successful = false;
     }
     else if (root->Country.compare(country) < 0)  //if less than current root's country, go left
-        searchAVLNode(root->left, country, list);
+        searchAVLNode(root->left, country, list, successful);
     else if (root->Country.compare(country) > 0)  //if greater than current root's country, go right
-        searchAVLNode(root->right, country, list);
+        searchAVLNode(root->right, country, list, successful);
     else if (root->Country.compare(country) == 0)   //found country, save map
         list = root->AVLmap;
 
@@ -201,16 +201,13 @@ int main()
         int index;
         string line;
         string country;
+        bool successful;
         string province;
         getline(fin, line);
         
         AVL AVLList;
         //Init our map container to store nodes
         map<string, Node> mp;
-
-
-       
-
 
 
         //For each line, make a new node
@@ -298,7 +295,8 @@ int main()
             index = line.find(",", index + 1);
 
             //Store the country for each node
-            node.country = line.substr(index + 1, line.find(",", index + 1) - index - 1);
+            string cnt = line.substr(index + 1, line.find(",", index + 1) - index - 1);
+            node.country = cnt;
 
             //Update the index
             index = line.find(",", index + 1);
@@ -333,24 +331,18 @@ int main()
             //if so, we need to store it on the node's vector instead
             //if no dupes, then we can simply add the node to the map
 
-         
-
-            
-            //find if our country is already in the map using iterator
-            auto found = mp.find(node.country);
-
-            //If not found, add to the map
-            if (found == mp.end())
+            auto it = mp.find(node.country);
+            if (it == mp.end())
             {
-                cout << "ADDED" << endl;
-                mp.emplace(node.country, node);
+                mp.emplace(cnt,node);
             }
-            //If it already exists, insert it into the duplicates vector of the node
             else
             {
-                cout << "DUPE" << endl;
-                found->second.dupes.push_back(node);
+                it->second.dupes.push_back(node);
             }
+
+            
+           
         }
         auto finish2 = chrono::high_resolution_clock::now();
 
@@ -363,7 +355,7 @@ int main()
         while (true)
         {
 
-            cout << "Search a country to see all available provinces, or type quit to exit: ";
+            cout << "\nSearch a country to see all available provinces, or type quit to exit: ";
             getline(cin, country);
 
             if (country == "quit")
@@ -374,39 +366,45 @@ int main()
             //search country in AVL
             unordered_map<string, vector<Node>> provList;
             map<string, vector<Node>> orderedProvList;
-            AVLList.searchAVLNode(AVLList.root, country, provList);
+
+            successful = true;
+            AVLList.searchAVLNode(AVLList.root, country, provList, successful);
 
             cout << endl;
+            if (successful) {   //if country found
+                //Print provinces
+                for (unordered_map<string, vector<Node>>::const_iterator it = provList.begin(); it != provList.end(); it++) {
+                    //cout << it->first << endl;
+                    orderedProvList[it->first] = it->second;
+                }
 
-            //MAKE ORDERED MAP
-            //Print provinces
-            for (unordered_map<string, vector<Node>>::const_iterator it = provList.begin(); it != provList.end(); it++) {
-                //cout << it->first << endl;
-                orderedProvList[it->first] = it->second;
+                for (auto it = orderedProvList.begin(); it != orderedProvList.end(); it++) {
+                    if (it->first != "")
+                        cout << it->first << endl;
+                }
+
+                cout << "\nPick a province to view all related Coronavirus statistics, or type quit to exit: ";
+
+                getline(cin, province);
+                cout << endl;
+
+                if (province == "quit")
+                {
+                    cout << "Thank you for using the Corona Coterie database, goodbye!" << endl;
+                    return 0;
+                }
+
+                //Print data
+                cout << "Date:" << setw(20) << "Province" << setw(15) << "Country" << setw(15) << "Confirmed" << setw(15) << "Deaths" << setw(15) << "Recovered" << endl;
+                for (int i = 0; i < provList[province].size(); i++) {
+
+                    cout << setw(17) << left << provList[province].at(i).date << setw(16) << provList[province].at(i).province << setw(13) << provList[province].at(i).country << setw(18)
+                        << provList[province].at(i).confirmed << setw(13) << provList[province].at(i).deaths << setw(9) << provList[province].at(i).revovered << endl;
+
+                }
             }
-
-            for (auto it = orderedProvList.begin(); it != orderedProvList.end(); it++) {
-                if (it->first != "")
-                    cout << it->first << endl;
-            }
-
-            cout << "\nPick a province to view all related Coronavirus statistics, or type quit to exit: " << endl;
-            
-            getline(cin, province);
-
-            if (province == "quit")
-            {
-                cout << "Thank you for using the Corona Coterie database, goodbye!" << endl;
-                return 0;
-            }
-
-            //Print data
-            cout << "Date:" << setw(20) << "Province" << setw(15) << "Country" << setw(15) << "Confirmed" << setw(15) << "Deaths" << setw(15) << "Recovered" << endl;
-            for (int i = 0; i < provList[province].size(); i++) {
-
-                cout << setw(17) << left << provList[province].at(i).date << setw(16) << provList[province].at(i).province << setw(13) << provList[province].at(i).country << setw(18)
-                    << provList[province].at(i).confirmed << setw(13) << provList[province].at(i).deaths << setw(9) << provList[province].at(i).revovered << endl;
-
+            else {      //if country not found, print not found and loop again
+                cout << "Not Found, try again" << endl;
             }
 
         }
