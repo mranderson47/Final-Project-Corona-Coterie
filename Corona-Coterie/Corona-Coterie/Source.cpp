@@ -203,7 +203,7 @@ int main()
         string country;
         string province;
         getline(fin, line);
-        Node node;
+        
         AVL AVLList;
         //Init our map container to store nodes
         map<string, Node> mp;
@@ -218,6 +218,7 @@ int main()
         auto start = chrono::high_resolution_clock::now();
         while (!fin.eof())
         {
+            Node node;
             getline(fin, line);
             //Start our index
             index = line.find(",");
@@ -279,6 +280,7 @@ int main()
         auto start2 = chrono::high_resolution_clock::now();
         while (!fin.eof())
         {
+            Node node;
             getline(fin, line);
             //Start our index
             index = line.find(",");
