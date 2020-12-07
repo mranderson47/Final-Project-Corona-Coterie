@@ -208,73 +208,14 @@ int main()
         AVL AVLList;
         //Init our map container to store nodes
         map<string, Node> mp;
+        
+        double count1 = 0;
+        double count2 = 0;
 
 
         //For each line, make a new node
         //Insertion into AVL, separate loop for insertion comparisons
         auto start = chrono::high_resolution_clock::now();
-        while (!fin.eof())
-        {
-            Node node;
-            getline(fin, line);
-            //Start our index
-            index = line.find(",");
-
-            //Store the date for each node
-            node.date = line.substr(index + 1, line.find(",", index + 1) - index - 1);
-
-            //Update the index
-            index = line.find(",", index + 1);
-
-            //Store the province for each node
-            node.province = line.substr(index + 1, line.find(",", index + 1) - index - 1);
-
-            //Update the index
-            index = line.find(",", index + 1);
-
-            //Store the country for each node
-            node.country = line.substr(index + 1, line.find(",", index + 1) - index - 1);
-
-            //Update the index
-            index = line.find(",", index + 1);
-
-            //Store the confirmed number of cases
-            node.confirmed = line.substr(index + 1, line.find(",", index + 1) - index - 1);
-
-            //Update the index
-            index = line.find(",", index + 1);
-
-            //Store the  number of deaths
-            node.deaths = line.substr(index + 1, line.find(",", index + 1) - index - 1);
-
-            //Update the index
-            index = line.find(",", index + 1);
-
-            //Store the  number of recovered
-            node.revovered = line.substr(index + 1, line.find(",", index + 1) - index - 1);
-
-            //Update the index
-            index = line.find(",", index + 1);
-
-
-            //*****Test printing data to make sure it is accurate*********//
-
-            //cout << node.date << " " << node.province << " " << node.country << " " << node.confirmed << " " << node.deaths << " " << node.revovered << endl;
-
-
-            //******INSERTION INTO DATA STRUCTURES******//
-
-            
-            AVLList.root = AVLList.insertAVLNode(AVLList.root, node);
-            
-        }
-        auto finish = chrono::high_resolution_clock::now();
-
-       
-        cout << "It took the AVL " << (finish - start).count() << " nanoseconds" << " for an average of " << ((finish - start).count() / 116805) << " microseconds per node!" << endl;
-        //Insertion into a map, separate loop for insertion comparisons
-        
-        auto start2 = chrono::high_resolution_clock::now();
         while (!fin.eof())
         {
             Node node;
@@ -319,38 +260,40 @@ int main()
             //Update the index
             index = line.find(",", index + 1);
 
+
             //*****Test printing data to make sure it is accurate*********//
 
             //cout << node.date << " " << node.province << " " << node.country << " " << node.confirmed << " " << node.deaths << " " << node.revovered << endl;
 
 
             //******INSERTION INTO DATA STRUCTURES******//
-
-            //insert node into map
-            //first find if there is a duplicate country data
-            //if so, we need to store it on the node's vector instead
-            //if no dupes, then we can simply add the node to the map
-
-            auto it = mp.find(node.country);
+            auto sMap = chrono::high_resolution_clock::now();
+            auto it = mp.find(cnt);
             if (it == mp.end())
             {
-                mp.emplace(cnt,node);
+                mp.emplace(cnt, node);
             }
             else
             {
                 it->second.dupes.push_back(node);
             }
+            auto fMap = chrono::high_resolution_clock::now();
+            count1 += (fMap - sMap).count();
 
-            
-           
+            auto sAVL = chrono::high_resolution_clock::now();
+            AVLList.root = AVLList.insertAVLNode(AVLList.root, node);
+            auto fAVL = chrono::high_resolution_clock::now();
+            count2 += (fAVL - sAVL).count();
+
         }
-        auto finish2 = chrono::high_resolution_clock::now();
+        auto finish = chrono::high_resolution_clock::now();
 
+       
+        cout << "It took a total of " << (finish - start).count() << " nanoseconds to load." << endl;
+        //Insertion into a map, separate loop for insertion comparisons
+        cout << "MAP insertion time: " << count1 << " nanoseconds" << endl;
+        cout << "AVL insertion time: " << count2 << " nanoseconds" << endl;
         
-        cout << "It took the MAP " << (finish2 - start2).count() << " nanoseconds" << " for an average of " << ((finish2 - start2).count() / 116805) << " microseconds per node!" << endl;
-        cout << "Finished loading all data!" << endl;
-
-
 
         while (true)
         {
