@@ -185,7 +185,6 @@ int main()
     cout << "Welcome to the Corona Coterie Data Index!" << endl;
 
     
-
     //Load our file stream.
     fstream fin;
     string file = "data.csv";
@@ -297,6 +296,8 @@ int main()
 
         while (true)
         {
+            double searchAVL = 0;
+            double searchMAP = 0;
 
             cout << "\nSearch a country to see all available provinces, or type quit to exit: ";
             getline(cin, country);
@@ -310,8 +311,20 @@ int main()
             unordered_map<string, vector<Node>> provList;
             map<string, vector<Node>> orderedProvList;
 
+            //Search to find the country
             successful = true;
+
+            auto startAVL = chrono::high_resolution_clock::now();
             AVLList.searchAVLNode(AVLList.root, country, provList, successful);
+            auto finishAVL = chrono::high_resolution_clock::now();
+            //Search to find the country
+
+            auto startMAP = chrono::high_resolution_clock::now();
+            auto it = mp.find(country);
+            auto finishMAP = chrono::high_resolution_clock::now();
+
+            cout << "AVL Search Time: " << (finishAVL - startAVL).count() << " nanoseconds" << endl;
+            cout << "MAP Search Time: " << (finishMAP - startMAP).count() << " nanoseconds" << endl;
 
             cout << endl;
             if (successful) {   //if country found
