@@ -1,5 +1,4 @@
 // Project1.cpp : This file contains the 'main' function. Program execution begins and ends there.
-//
 
 #include <iostream>
 #include <string>
@@ -9,10 +8,13 @@
 #include <queue>
 #include <unordered_map>
 #include <vector>
+#include <map>
 #include <math.h>
+#include <ctime>
 
 using namespace std;
 
+//Node structure for map data structure
 struct Node
 {
 
@@ -22,10 +24,11 @@ struct Node
     string confirmed;
     string deaths;
     string revovered;
-
+    vector<Node> dupes;
 
 };
 
+//AVL structure class
 class AVL {
 public:
     //Initialize AVLNode
@@ -156,6 +159,27 @@ AVL::AVLNode* AVL::insertAVLNode(AVLNode* root, Node data) {       //O(logn)
     return balanceAVLNode(root);   //rebalance
 }
 
+void mapInsert(map<string, Node> &mp, Node node)
+{
+    bool isPresent = false;
+    //find if our country is already in the map using iterator
+    auto found = mp.find(node.country);
+
+    //If not found, add to the map
+    if (found == mp.end())
+    {
+        mp.emplace(node.country, node);
+    } 
+    //If it already exists, insert it into the duplicates vector of the node
+    else
+    {
+        Node curr = mp.at(node.country);
+        curr.dupes.push_back(node);
+    }
+
+
+}
+
 //Stepik 4.3.3 find Node
 void AVL::searchAVLNode(AVLNode* root, string country, unordered_map<string, vector<Node>>& list) {     //O(logn)
     if (root == NULL) {     //check if empty
@@ -175,6 +199,8 @@ int main()
 {
     cout << "Welcome to the Corona Coterie Data Index!" << endl;
 
+    //Init our map container to store nodes
+    map<string, Node> mp;
 
     //Load our file stream.
     fstream fin;
@@ -244,31 +270,63 @@ int main()
 
             //cout << node.date << " " << node.province << " " << node.country << " " << node.confirmed << " " << node.deaths << " " << node.revovered << endl;
 
+
+            //******INSERTION INTO DATA STRUCTURES******//
+
+            //Set up timing for comparing data structures
+            //clock_t sAVL, fAVL, sMAP, fMAP;
+            //double tAVL, tMAP;
+
+
+            //sAVL = clock();
             //insert node into AVL
             AVLList.root = AVLList.insertAVLNode(AVLList.root, node);
+            //fAVL = clock();
+
+         
+            //insert node into map
+            //first find if there is a duplicate country data
+            //if so, we need to store it on the node's vector instead
+            //if no dupes, then we can simply add the node to the map
+
+            //sMAP = clock();
+            mapInsert(mp, node);
+            //fMAP = clock();
+
+            //tAVL = (double(fAVL) - double(sAVL)) / CLOCKS_PER_SEC;
+            //tMAP = (double(fMAP) - double(sMAP)) / CLOCKS_PER_SEC;
+
+            //cout << "It took the AVL " << tAVL << " to load all the data." << endl;
+            //cout << "It took the MAP " << tMAP << " to load all the data." << endl;
 
         }
 
         cout << "Finished loading all data!" << endl;
 
-        cout << "Search for: ";
-        getline(cin, country);
+        while (true)
+        {
 
-        //search country in AVL
-        unordered_map<string, vector<Node>> provList;
-        AVLList.searchAVLNode(AVLList.root, country, provList);
+            cout << "Search a country to see all available provinces: ";
+            getline(cin, country);
 
-        cout << endl;
+            //search country in AVL
+            unordered_map<string, vector<Node>> provList;
+            AVLList.searchAVLNode(AVLList.root, country, provList);
 
-        //MAKE ORDERED MAP
-        //Print provinces
-        for (unordered_map<string, vector<Node>>::const_iterator it = provList.begin(); it != provList.end(); it++) {
-            cout << it->first << endl;
+            cout << endl;
+
+            //MAKE ORDERED MAP
+            //Print provinces
+            for (unordered_map<string, vector<Node>>::const_iterator it = provList.begin(); it != provList.end(); it++) {
+                cout << it->first << endl;
+            }
+            cout << "\nPick Province: " << endl;
+            cout << endl;
+
+            //Print data
+
+
         }
-        cout << "\nPick Province: ";
-
-        //Print data
-
     }
     //If we were not able to open the file, exit the program.
     else
