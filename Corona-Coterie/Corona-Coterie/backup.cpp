@@ -10,7 +10,7 @@
 #include <vector>
 #include <map>
 #include <math.h>
-#include <chrono>
+#include <ctime>
 
 using namespace std;
 
@@ -165,6 +165,27 @@ AVL::AVLNode* AVL::insertAVLNode(AVLNode* root, Node data) {       //O(logn)
     return balanceAVLNode(root);   //rebalance
 }
 
+void mapInsert(map<string, Node> &mp, Node node)
+{
+    bool isPresent = false;
+    //find if our country is already in the map using iterator
+    auto found = mp.find(node.country);
+
+    //If not found, add to the map
+    if (found == mp.end())
+    {
+        mp.emplace(node.country, node);
+    } 
+    //If it already exists, insert it into the duplicates vector of the node
+    else
+    {
+        Node curr = mp.at(node.country);
+        curr.dupes.push_back(node);
+    }
+
+
+}
+
 //Stepik 4.3.3 find Node
 void AVL::searchAVLNode(AVLNode* root, string country, unordered_map<string, vector<Node>>& list) {     //O(logn)
     if (root == NULL) {     //check if empty
@@ -184,7 +205,8 @@ int main()
 {
     cout << "Welcome to the Corona Coterie Data Index!" << endl;
 
-    
+    //Init our map container to store nodes
+    map<string, Node> mp;
 
     //Load our file stream.
     fstream fin;
@@ -205,17 +227,11 @@ int main()
         getline(fin, line);
         Node node;
         AVL AVLList;
-        //Init our map container to store nodes
-        map<string, Node> mp;
 
-
-       
-
-
+        clock_t start;
+        start = clock();
 
         //For each line, make a new node
-        //Insertion into AVL, separate loop for insertion comparisons
-        auto start = chrono::high_resolution_clock::now();
         while (!fin.eof())
         {
             getline(fin, line);
@@ -259,6 +275,7 @@ int main()
             index = line.find(",", index + 1);
 
 
+
             //*****Test printing data to make sure it is accurate*********//
 
             //cout << node.date << " " << node.province << " " << node.country << " " << node.confirmed << " " << node.deaths << " " << node.revovered << endl;
@@ -266,97 +283,43 @@ int main()
 
             //******INSERTION INTO DATA STRUCTURES******//
 
-            
+            //Set up timing for comparing data structures
+            //clock_t sAVL, fAVL, sMAP, fMAP;
+            //double tAVL, tMAP;
+
+
+            //sAVL = clock();
+            //insert node into AVL
             AVLList.root = AVLList.insertAVLNode(AVLList.root, node);
-            
-        }
-        auto finish = chrono::high_resolution_clock::now();
+            //fAVL = clock();
 
-       
-        cout << "It took the AVL " << (finish - start).count() << " nanoseconds" << " for an average of " << ((finish - start).count() / 116805) << " microseconds per node!" << endl;
-        //Insertion into a map, separate loop for insertion comparisons
-        
-        auto start2 = chrono::high_resolution_clock::now();
-        while (!fin.eof())
-        {
-            getline(fin, line);
-            //Start our index
-            index = line.find(",");
-
-            //Store the date for each node
-            node.date = line.substr(index + 1, line.find(",", index + 1) - index - 1);
-
-            //Update the index
-            index = line.find(",", index + 1);
-
-            //Store the province for each node
-            node.province = line.substr(index + 1, line.find(",", index + 1) - index - 1);
-
-            //Update the index
-            index = line.find(",", index + 1);
-
-            //Store the country for each node
-            node.country = line.substr(index + 1, line.find(",", index + 1) - index - 1);
-
-            //Update the index
-            index = line.find(",", index + 1);
-
-            //Store the confirmed number of cases
-            node.confirmed = line.substr(index + 1, line.find(",", index + 1) - index - 1);
-
-            //Update the index
-            index = line.find(",", index + 1);
-
-            //Store the  number of deaths
-            node.deaths = line.substr(index + 1, line.find(",", index + 1) - index - 1);
-
-            //Update the index
-            index = line.find(",", index + 1);
-
-            //Store the  number of recovered
-            node.revovered = line.substr(index + 1, line.find(",", index + 1) - index - 1);
-
-            //Update the index
-            index = line.find(",", index + 1);
-
-            //*****Test printing data to make sure it is accurate*********//
-
-            //cout << node.date << " " << node.province << " " << node.country << " " << node.confirmed << " " << node.deaths << " " << node.revovered << endl;
-
-
-            //******INSERTION INTO DATA STRUCTURES******//
-
+         
             //insert node into map
             //first find if there is a duplicate country data
             //if so, we need to store it on the node's vector instead
             //if no dupes, then we can simply add the node to the map
 
-         
+            //sMAP = clock();
+            mapInsert(mp, node);
+            //fMAP = clock();
 
-            
-            //find if our country is already in the map using iterator
-            auto found = mp.find(node.country);
+            //tAVL = (double(fAVL) - double(sAVL)) / CLOCKS_PER_SEC;
+            //tMAP = (double(fMAP) - double(sMAP)) / CLOCKS_PER_SEC;
 
-            //If not found, add to the map
-            if (found == mp.end())
-            {
-                cout << "ADDED" << endl;
-                mp.emplace(node.country, node);
-            }
-            //If it already exists, insert it into the duplicates vector of the node
-            else
-            {
-                cout << "DUPE" << endl;
-                found->second.dupes.push_back(node);
-            }
+            //cout << "It took the AVL " << tAVL << " to load all the data." << endl;
+            //cout << "It took the MAP " << tMAP << " to load all the data." << endl;
+
         }
-        auto finish2 = chrono::high_resolution_clock::now();
 
-        
-        cout << "It took the MAP " << (finish2 - start2).count() << " nanoseconds" << " for an average of " << ((finish2 - start2).count() / 116805) << " microseconds per node!" << endl;
+        clock_t stop;
+        stop = clock();
+
+        double total = stop - start;
+
+        cout << total << endl;
+
+
         cout << "Finished loading all data!" << endl;
-
-
 
         while (true)
         {
